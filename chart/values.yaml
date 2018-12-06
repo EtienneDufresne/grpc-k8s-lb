@@ -1,0 +1,28 @@
+## Default values for the grpc-k8s-lb Helm chart.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+image:
+  ## grpc-k8s-lb image.
+  ##
+  repository: etiennedufresne/grpc-k8s-lb
+
+  ## grpc-k8s-lb image version.
+  ##
+  tag: latest
+
+  ## Specify a imagePullPolicy: 'Always' if imageTag is 'latest', else set to 'IfNotPresent'.
+  ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+
+## Number of replicas.
+##
+replicaCount: 2
+
+## Service configuration.
+## ref: https://kubernetes.io/docs/user-guide/services
+##
+service:
+  type: ClusterIP
+  port: 8080

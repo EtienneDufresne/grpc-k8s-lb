@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "grpc-k8s-lb.fullname" . }}
+  labels:
+    app: {{ template "grpc-k8s-lb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: {{ template "grpc-k8s-lb.name" . }}
+  selector:
+    app: {{ template "grpc-k8s-lb.name" . }}
+    release: {{ .Release.Name }}

@@ -21,9 +21,9 @@ func NewClient(host string) *client {
 	}
 }
 
-func (c *client) Run() error {
+func (c *client) Run(ctx context.Context) error {
 	// Set up a connection to the gRPC server.
-	conn, err := grpc.Dial(c.Host, grpc.WithInsecure())
+	conn, err := grpc.DialContext(ctx, c.Host, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

@@ -5,7 +5,11 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
+
+	"golang.org/x/net/context"
 )
 
 var (
@@ -25,13 +29,26 @@ func init() {
 }
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-sigs
+		log.Printf("shutdown signal received")
+		signal.Stop(sigs)
+		close(sigs)
+		cancel()
+	}()
+
 	var err error
 	if serverMode {
 		log.Printf("server mode")
-		err = NewServer(host).Run()
+		err = NewServer(host).Run(ctx)
 	} else {
 		log.Printf("client mode")
-		err = NewClient(host).Run()
+		err = NewClient(host).Run(ctx)
 	}
 
 	if err != nil {

@@ -22,7 +22,7 @@ func NewServer(host string) *server {
 	}
 }
 
-func (s *server) Run() error {
+func (s *server) Run(ctx context.Context) error {
 	lis, err := net.Listen("tcp", host)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -30,7 +30,12 @@ func (s *server) Run() error {
 	// Creates a new gRPC server
 	gs := grpc.NewServer()
 	pb.RegisterCustomerServer(gs, s)
-	return gs.Serve(lis)
+
+	go gs.Serve(lis)
+
+	<-ctx.Done()
+
+	return nil
 }
 
 // CreateCustomer creates a new Customer

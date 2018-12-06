@@ -1,0 +1,9 @@
+apiVersion: v1
+description: >
+  Helm chart for grpc-k8s-lb
+name: grpc-k8s-lb
+version: 1.0.0
+keywords:
+home: https://github.com/EtienneDufresne/grpc-k8s-lb
+sources:
+- https://github.com/EtienneDufresne/grpc-k8s-lb

@@ -14,4 +14,4 @@ EXPOSE 8080
 COPY --from=builder /go/src/github.com/EtienneDufresne/grpc-k8s-lb/grpc-k8s-lb /usr/local/bin/
 RUN chown -R nobody:nogroup /usr/local/bin/grpc-k8s-lb && chmod +x /usr/local/bin/grpc-k8s-lb
 USER nobody
-ENTRYPOINT ["grpc-k8s-lb"]
+ENTRYPOINT ["grpc-k8s-lb", "-s"]
