@@ -1,5 +1,7 @@
-# grpc-web-lb
-A gRPC hello wold with istio/envoy load balancing and a simple gRPC-web UI
+# grpc-k8s-lb
+A Kubernetes gRPC hello wold wirg istio/envoy load balancing and a simple gRPC-web UI
+
+Go core heavily inspired/stolen from [gRCP chat code](https://github.com/rodaine/grpc-chat) from [rodaine](https://github.com/rodaine)
 
 # How to build it
 
