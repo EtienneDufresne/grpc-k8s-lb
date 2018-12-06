@@ -1,18 +1,26 @@
 # grpc-k8s-lb
 A Kubernetes gRPC hello wold wirg istio/envoy load balancing and a simple gRPC-web UI
 
-Go core heavily inspired/stolen from [gRCP chat code](https://github.com/rodaine/grpc-chat) from [rodaine](https://github.com/rodaine)
-
 # How to build it
 
+Requires the Go toolchain, the [`protoc` compiler](https://github.com/google/protobuf) and the [`protoc-gen-go` plugin](https://github.com/golang/protobuf).
+
 ``` shell
-go get -u github.com/golang/protobuf/proto
-go get -u github.com/golang/protobuf/protoc-gen-go
-go get google.golang.org/grpc
+go get github.com/EtienneDufresne/grpc-k8s-lb
+make build
 ```
 
 # How to run it
 
+## Start Server
+``` shell
+grpc-k8s-lb -s
+```
+
+## Start Client
+``` shell
+grpc-k8s-lb
+```
 
 ## References
 
