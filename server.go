@@ -44,8 +44,12 @@ func (s *server) EchoMessage(ctx context.Context, in *pb.EchoRequest) (*pb.EchoR
 	log.Printf("=================================================================")
 	log.Printf("Received %s", in.Message)
 	log.Printf("Sending %s", in.Message)
+	serverID := os.Getenv("HOSTNAME")
+	if serverID == "" {
+		serverID = s.Host
+	}
 	return &pb.EchoResponse{
 		Message:  in.Message,
-		ServerID: os.Getenv("HOSTNAME"),
+		ServerID: serverID,
 	}, nil
 }
