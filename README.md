@@ -1,5 +1,5 @@
 # grpc-k8s-lb
-A Kubernetes gRPC hello wold wirg istio/envoy load balancing and a simple gRPC-web UI
+A Kubernetes gRPC hello wold with istio/envoy load balancing and a simple gRPC-web UI
 
 # How to build it
 
