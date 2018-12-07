@@ -18,7 +18,15 @@ image:
 
 ## Number of replicas.
 ##
-replicaCount: 2
+replicaCount: 1
+
+## Command to use to start grpc-k8s-lb
+##
+command: ["grpc-k8s-lb"]
+
+## Arguments to use when starting grpc-k8s-lb
+##
+args: ["-s"]
 
 ## Service configuration.
 ## ref: https://kubernetes.io/docs/user-guide/services

@@ -12,14 +12,30 @@ make build
 
 # How to run it
 
-## Start Server
+## Go binary
+
+Start the server:
 ``` shell
 grpc-k8s-lb -s
 ```
 
-## Start Client
+Start the client
 ``` shell
 grpc-k8s-lb
+```
+
+## Helm chart
+
+Start two servers:
+``` shell
+helm upgrade --install grpc-server ./chart \
+  --set replicaCount=2
+```
+
+Start a client:
+``` shell
+helm upgrade --install grpc-client ./chart \
+  --set args[0]=-h,args[1]=grpc-server-grpc-k8s-lb:8080
 ```
 
 ## References

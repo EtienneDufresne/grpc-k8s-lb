@@ -1,8 +1,9 @@
 package main
 
 import (
-	"io"
+	"fmt"
 	"log"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -11,8 +12,7 @@ import (
 )
 
 type client struct {
-	Host     string
-	Shutdown bool
+	Host string
 }
 
 func NewClient(host string) *client {
@@ -22,93 +22,42 @@ func NewClient(host string) *client {
 }
 
 func (c *client) Run(ctx context.Context) error {
-	// Set up a connection to the gRPC server.
 	conn, err := grpc.DialContext(ctx, c.Host, grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		log.Fatalf("Could not connect to %s: %v", c.Host, err)
+		return err
 	}
 	defer conn.Close()
-	// Creates a new CustomerClient
-	client := pb.NewCustomerClient(conn)
 
-	customer := &pb.CustomerRequest{
-		Id:    101,
-		Name:  "Shiju Varghese",
-		Email: "shiju@xyz.com",
-		Phone: "732-757-2923",
-		Addresses: []*pb.CustomerRequest_Address{
-			&pb.CustomerRequest_Address{
-				Street:            "1 Mission Street",
-				City:              "San Francisco",
-				State:             "CA",
-				Zip:               "94105",
-				IsShippingAddress: false,
-			},
-			&pb.CustomerRequest_Address{
-				Street:            "Greenfield",
-				City:              "Kochi",
-				State:             "KL",
-				Zip:               "68356",
-				IsShippingAddress: true,
-			},
-		},
-	}
+	log.Printf("Client connecting to %s", host)
 
-	// Create a new customer
-	createCustomer(client, customer)
+	go sendEchoMessagePeriodically(ctx, conn)
 
-	customer = &pb.CustomerRequest{
-		Id:    102,
-		Name:  "Irene Rose",
-		Email: "irene@xyz.com",
-		Phone: "732-757-2924",
-		Addresses: []*pb.CustomerRequest_Address{
-			&pb.CustomerRequest_Address{
-				Street:            "1 Mission Street",
-				City:              "San Francisco",
-				State:             "CA",
-				Zip:               "94105",
-				IsShippingAddress: true,
-			},
-		},
-	}
-
-	// Create a new customer
-	createCustomer(client, customer)
-	// Filter with an empty Keyword
-	filter := &pb.CustomerFilter{Keyword: ""}
-	getCustomers(client, filter)
-
+	<-ctx.Done()
 	return nil
 }
 
-// createCustomer calls the RPC method CreateCustomer of CustomerServer
-func createCustomer(client pb.CustomerClient, customer *pb.CustomerRequest) {
-	resp, err := client.CreateCustomer(context.Background(), customer)
-	if err != nil {
-		log.Fatalf("Could not create Customer: %v", err)
-	}
-	if resp.Success {
-		log.Printf("A new Customer has been added with id: %d", resp.Id)
+func sendEchoMessagePeriodically(ctx context.Context, conn *grpc.ClientConn) {
+	client := pb.NewEchoClient(conn)
+	tickerChan := time.NewTicker(5 * time.Second).C
+	for {
+		select {
+		case t := <-tickerChan:
+			message := fmt.Sprintf("Message at %d:%d:%d", t.Hour(), t.Minute(), t.Second())
+			log.Printf("=================================================================")
+			log.Printf("Sending %s", message)
+			echoMessage(ctx, client, &pb.EchoRequest{Message: message})
+		case <-ctx.Done():
+			return
+		}
 	}
 }
 
-// getCustomers calls the RPC method GetCustomers of CustomerServer
-func getCustomers(client pb.CustomerClient, filter *pb.CustomerFilter) {
-	// calling the streaming API
-	stream, err := client.GetCustomers(context.Background(), filter)
+func echoMessage(ctx context.Context, client pb.EchoClient, echoRequest *pb.EchoRequest) {
+	resp, err := client.EchoMessage(ctx, echoRequest)
 	if err != nil {
-		log.Fatalf("Error on get customers: %v", err)
+		log.Fatalf("Could not send message : %v", err)
+		return
 	}
-	for {
-		// Receiving the stream of data
-		customer, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatalf("%v.GetCustomers(_) = _, %v", client, err)
-		}
-		log.Printf("Customer: %v", customer)
-	}
+	log.Printf("Received %s from server %s", resp.Message, resp.ServerID)
 }

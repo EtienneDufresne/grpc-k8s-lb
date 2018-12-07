@@ -21,6 +21,14 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
+          command:
+          {{- range .Values.command }}
+            - {{ . }}
+          {{- end }}
+          args: 
+          {{- range .Values.args }}
+            - {{ . }}
+          {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 8 }}

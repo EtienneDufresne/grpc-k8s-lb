@@ -4,7 +4,7 @@ build:
 
 .PHONY: generate-protos
 generate-protos:
-	protoc --go_out="plugins=grpc:." protos/customer.proto
+	protoc --go_out="plugins=grpc:." protos/message.proto
 
 .PHONY: build-docker
 build-docker:
