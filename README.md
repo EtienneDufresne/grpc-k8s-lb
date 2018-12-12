@@ -1,5 +1,5 @@
 # grpc-k8s-lb
-A Kubernetes gRPC echo client/server with istio/envoy load balancing
+A Kubernetes gRPC echo client/server with istio/envoy load balancing.
 
 # Requirements
 
@@ -43,7 +43,7 @@ grpc-k8s-lb
 
 ## Helm chart
 
-This assumes you have a clean Docker for Mac / Minikube Kubernetes cluster.
+This assumes you have a clean Docker for Mac / Minikube Kubernetes cluster and that you built the echo client/server docker image.
 
 Start two gRPC echo servers:
 ``` shell
