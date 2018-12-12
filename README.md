@@ -7,8 +7,9 @@ A Kubernetes gRPC echo client/server with istio/envoy load balancing
 - [protoc compiler](https://github.com/google/protobuf)
 - [protoc-gen-go plugin](https://github.com/golang/protobuf)
 - [docker for mac](https://store.docker.com/editions/community/docker-ce-desktop-mac)
-- [docker for mac Kubernetes cluster](https://docs.docker.com/docker-for-mac/#kubernetes) (minikube should also work, note that I used the edge version of docker)
+- [docker for mac Kubernetes cluster](https://docs.docker.com/docker-for-mac/#kubernetes) minikube should also work, note that I used the edge version of docker for mac
 - [helm](https://github.com/helm/helm#install)
+- [istio](https://istio.io/docs/setup/kubernetes/helm-install/) note that I included the required Istio 1.0.4 helm files in the charts folder for simplicity
 
 # How to build it
 
@@ -42,6 +43,8 @@ grpc-k8s-lb
 
 ## Helm chart
 
+This assumes you have a clean Docker for Mac / Minikube Kubernetes cluster.
+
 Start two gRPC echo servers:
 ``` shell
 helm upgrade --install grpc-server ./chart \
@@ -66,7 +69,7 @@ helm delete --purge $(helm list -q)
 
 Setup the service account that will be used by the helm tiller to setup istio:
 ``` shell
-kubectl apply -f istio/install/kubernetes/helm/helm-service-account.yaml
+kubectl apply -f charts/helm-service-account.yaml
 ```
 
 Setup helm tiller to use the service account:
@@ -76,7 +79,7 @@ helm init --service-account tiller
 
 Install istio in the istio-system namespace:
 ``` shell
-helm install chart/install/kubernetes/helm/istio --name istio --namespace istio-system --set tracing.enabled=true
+helm install charts/istio --name istio --namespace istio-system --set tracing.enabled=true
 ```
 
 Turn on auto Envoy proxy sidecar injection on the default namespace:
@@ -86,19 +89,31 @@ kubectl label namespace default istio-injection=enabled
 
 Start two gRPC echo servers:
 ``` shell
-helm upgrade --install grpc-server ./chart \
+helm upgrade --install grpc-server charts/echo \
   --set replicaCount=2
 ```
 
 Start a gRPC echo client:
 ``` shell
-helm upgrade --install grpc-client ./chart \
+helm upgrade --install grpc-client charts/echo \
   --set args[0]=-h,args[1]=grpc-server-grpc-k8s-lb:8080
 ```
 
 At this point you should see that every 5 seconds, the client is making a request to different grpc server pod as istio/envoy load balancing is enabled:
 ``` shell
 kubectl logs -f grpc-client-xxx
+```
+
+## Clean Up
+
+Delete all helm releases from the default namespace
+``` shell
+helm delete --purge $(helm list -q)
+```
+
+Delete Istio Custom Resource Definitions
+``` shell
+kubectl delete -f istio/install/kubernetes/helm/istio/templates/ -n istio-system
 ```
 
 ## TODO
@@ -117,5 +132,3 @@ kubectl logs -f grpc-client-xxx
 - [grcp-web](https://github.com/grpc/grpc-web)
 - [IETF gRCP RFC](https://tools.ietf.org/html/draft-kumar-rtgwg-grpc-protocol-00)
 - [IETF websocket RFC](https://tools.ietf.org/html/rfc6455)
-
-
